@@ -1,0 +1,21 @@
+name: Build Modules
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Exécuter le script Bash
+        run: |
+          java -jar revanced-cli.jar -h
+
+      

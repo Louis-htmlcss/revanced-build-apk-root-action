@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Download apk
         run: |
-          wget https://eb5e7388c3df147b74dd2379b7cf8323.r2.cloudflarestorage.com/downloadprod/wp-content/uploads/2024/07/50/6698718f18ca5/com.google.android.youtube_19.28.35-1547296192_minAPI26%28arm64-v8a%2Carmeabi-v7a%2Cx86%2Cx86_64%29%28nodpi%29_apkmirror.com.apk?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=72a5ba3a0b8a601e535d5525f12f8177%2F20241023%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241023T154554Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=e02b0ca811c8e5817a7c11a1bd63532af3edf3a207fb7d97477a58af62e95477
+          wget https://dw.uptodown.net/dwn/Hm_lq1qmUkszJNaOTLaPd9-t2Otu-Nl9cMEdK3AsPgcd5ht-UQ-LfQQt-aNyPMZnTydBxjTmu7UOrI8HA0HxNKFecuOL9F3O7MeRkqg3c5uvaJjhdc1azyiMFZG7VeNR/FV8oxtBa4000aOpwrroqhCeEzvvKIgxXa8W2wc3ZLePHF2vHMraKtVV4nvX_vjCTD3PkythFONIIDeRlBu9OKyc7er_k-IzddaxgL_uZYcwMpkB2ZMrMLWf6yK-KaDNy/3nBS2s-WaRPdteac_NpLdQE1kCBjg0ThXEnwi_8ke9SMS3CIwucmVBb2WPEiNwKL6UEF2-gOh9RFN5IA2lyfkg==/youtube-19-30-36.apk
       - name: Exécuter le script Bash
         run: |
           java -jar revanced-cli.jar -h
@@ -24,6 +24,5 @@ jobs:
           java -jar revanced-cli.jar options --path options.json --overwrite revanced-patches.jar
       - name: Build revanced
         run: |
-          java -jar revanced-cli.jar patch --patch-bundle revanced-patches.jar -d com.google.android.youtube_19.28.35-1547296192_minAPI26%28arm64-v8a%2Carmeabi-v7a%2Cx86%2Cx86_64%29%28nodpi%29_apkmirror.com.apk
-
+          java -jar revanced-cli.jar patch --patch-bundle revanced-patches.jar -d youtube-19-30-36.apk
       

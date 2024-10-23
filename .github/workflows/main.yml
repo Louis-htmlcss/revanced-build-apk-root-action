@@ -13,9 +13,17 @@ jobs:
           java-version: "17"
       - name: Checkout du code
         uses: actions/checkout@v4
-
+      - name: Download apk
+        run: |
+          wget https://eb5e7388c3df147b74dd2379b7cf8323.r2.cloudflarestorage.com/downloadprod/wp-content/uploads/2024/07/50/6698718f18ca5/com.google.android.youtube_19.28.35-1547296192_minAPI26%28arm64-v8a%2Carmeabi-v7a%2Cx86%2Cx86_64%29%28nodpi%29_apkmirror.com.apk?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=72a5ba3a0b8a601e535d5525f12f8177%2F20241023%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20241023T153317Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=f63b756b55ca85234abde76bc2180777cd928929d8151e9df4abe25536f31ec5
       - name: Exécuter le script Bash
         run: |
           java -jar revanced-cli.jar -h
+      - name: generate-patches
+        run: |
+          java -jar revanced-cli.jar options --path options.json --overwrite revanced-patches.jar
+      - name: Build revanced
+        run: |
+          java -jar revanced-cli.jar patch --patch-bundle revanced-patches.jar -d com.google.android.youtube_19.28.35-1547296192_minAPI26%28arm64-v8a%2Carmeabi-v7a%2Cx86%2Cx86_64%29%28nodpi%29_apkmirror.com.apk
 
       

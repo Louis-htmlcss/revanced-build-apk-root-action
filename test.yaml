@@ -2,27 +2,29 @@
 global:
   parallel_jobs: 1  # Nombre de cœurs à utiliser pour le patching parallèle (par défaut: nproc)
   remove_rv_integrations_checks: true  # Supprimer les vérifications des intégrations ReVanced
-
-  versions:
-    patches: "latest"  # 'latest', 'dev', ou un numéro de version
-    integrations: "latest"
-    cli: "latest"
-# Configuration des applications
 apps:
-  Some-App:
-    enabled: true
-    app_name: "SomeApp"  # Nom de l'application dans les releases
+  Youtube:
+    enabled: true 
+    app_name: "youtube"  # Nom de l'application dans les releases
     version: "auto"  # 'auto', 'latest', 'beta' ou un numéro de version
     include_stock: true
-    build_mode: "apk"  # 'apk' pour non-root, 'root-apk' pour root
+    build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
     patches:
       excluded: ["Some Patch", "Some Other Patch"]
       included: ["Patch something"]
-      patch_selection: "none"  # Options: "all", "default", or "none"
+      patch_selection: "all"  # Options: "all", "default", or "none"
     download:
-      apkmirror: "https://www.apkmirror.com/apk/inc/app"
-      uptodown: "https://spotify.en.uptodown.com/android"
+      apkmirror: "https://www.apkmirror.com/apk/google-inc/youtube"
+      uptodown: "https://youtube.en.uptodown.com/android"
     apkmirror_dpi: "360-480dpi"
     arch: "all"  # 'arm64-v8a', 'arm-v7a', 'all', 'both'
-    riplib: true  # Activer l'extraction des libs x86 et x86_64
-
+    revanced:
+      cli: 
+        source: "revanced/revanced-cli"
+        version: "latest"
+      integrations: 
+        source: "revanced/revanced-integrations"
+        version: "latest"
+      patches: 
+        source: "revanced/revanced-patches"
+        version: "latest"

@@ -13,9 +13,7 @@ jobs:
           java-version: "17"
       - name: Checkout du code
         uses: actions/checkout@v4
-      - name: Download apk
-        run: |
-          wget https://dw.uptodown.net/dwn/DJ5m2JSJQ3HG8IQtrNSQR8n009K60RFu6JkS2CcgXRd9HRxxnkJKbNNJAQ4n5FOep5t3W7QPQ5aipqmRZoX5XbY1gwQb68Bz6Z_m4zi1QaN4iPchLEh4gzZkPvK5NIHB/G7S4lTeCxYfoozzlUuRrIcGIJ3cuBgoUINHEyqfwExU5_LI0wWm-69JdpXjmXoho8lpILD-9zhaVh8aZq11-pGDeB84FBiey8s0WtoEacwk90MlPUlAu8Zy56D5qs4_g/3CKIeNwvPXDnazWrXWd9V13crl5Yim0zTEO34SLwW4W1iXZDbJK-1Z2V1-gNpujTkUvBrS3c87hs6ki24P7M0w==/youtube-19-41-41.apk
+      
       - name: Exécuter le script Bash
         run: |
           java -jar revanced-cli.jar -h

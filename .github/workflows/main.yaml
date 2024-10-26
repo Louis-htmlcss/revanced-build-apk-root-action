@@ -22,5 +22,5 @@ jobs:
           java -jar revanced-cli.jar options --path options.json --overwrite revanced-patches.jar
       - name: Build revanced
         run: |
-          java -jar revanced-cli.jar patch youtube.apk -p -o youtube-19-30-36-revanced.apk -b revanced-patches.jar --options=options.json
+          java -jar revanced-cli.jar patch youtube2.apk -p -o youtube-19-30-36-revanced.apk -b revanced-patches.jar --options=options.json
       

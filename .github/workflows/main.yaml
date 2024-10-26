@@ -22,5 +22,14 @@ jobs:
           java -jar revanced-cli.jar options --path options.json --overwrite revanced-patches.jar
       - name: Build revanced
         run: |
-          java -jar revanced-cli.jar patch youtube2.apk -p -o youtube-19-30-36-revanced.apk -b revanced-patches.jar --options=options.json
+          java -jar revanced-cli-all.jar patch \
+            -d device-name \
+            -b revanced-patches.jar \
+            -m revanced-integrations.apk \
+            --options options.json \
+            -p \
+            -e "GmsCore support" \
+            --mount \
+            -o revanced-extended.apk \
+            youtube2.apk
       

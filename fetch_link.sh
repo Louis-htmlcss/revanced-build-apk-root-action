@@ -75,8 +75,8 @@ wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --sho
 if [ "$appType" == "bundle" ]; then
     splits="splits"
     mkdir -p "$splits"
-    unzip -qqo "$appName-$appVer.apkm" -d "$splits"
-    rm "$appName-$appVer.apkm"
+    unzip -qqo "$appName-$appVer.bundle" -d "$splits"
+    rm "$appName-$appVer.bundle"
     
     appDir="$appName-$appVer"
     mkdir -p "$appDir"

@@ -38,8 +38,12 @@ else
         if [ "${#apkUrls[@]}" -ne 0 ]; then
             url1=${apkUrls[-1]}
             appType=apk
-        fi  
+        else
+            url1=${bundleUrls[-1]}
+            appType=bundle
+        fi
     fi  
+
 fi
 echo 33
 
@@ -67,9 +71,26 @@ echo "$appType" >&2
 # Download the file
 wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --show-progress --user-agent="$UserAgent"
 
-
+# If it's a bundle (apkm), convert it to APK
 if [ "$appType" == "bundle" ]; then
-    java -jar bundletool-all.jar build-apks --bundle="$appName-$appVer.$appType" \
-        --output="$appName-$appVer.apks" \
-        --mode=universal
+    splits="splits"
+    mkdir -p "$splits"
+    unzip -qqo "$appName-$appVer.apkm" -d "$splits"
+    rm "$appName-$appVer.apkm"
+    
+    appDir="$appName-$appVer"
+    mkdir -p "$appDir"
+    cp "$splits/base.apk" "$appDir"
+    cp "$splits/split_config.${arch//-/_}.apk" "$appDir" &> /dev/null
+    
+    locale=$(getprop persist.sys.locale | sed 's/-.*//g')
+    if [ ! -e "$splits/split_config.${locale}.apk" ]; then
+        locale=$(getprop ro.product.locale | sed 's/-.*//g')
+    fi
+    cp "$splits/split_config.${locale}.apk" "$appDir" &> /dev/null
+    cp "$splits"/split_config.*dpi.apk "$appDir" &> /dev/null
+    
+    rm -rf "$splits"
+    java -jar ApkEditor.jar m -i "$appDir" -o "$appName-$appVer.apk" &> /dev/null
+    rm -rf "$appDir"
 fi

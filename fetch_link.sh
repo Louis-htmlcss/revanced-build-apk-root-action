@@ -73,24 +73,27 @@ wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --sho
 
 if [ "$appType" == "bundle" ]; then
     antiSplitApkm() {
-        "${header[@]}" --infobox "Please Wait !!\nReducing app size..." 12 45
-        splits="apps/splits"
-        mkdir "$splits"
-        unzip -qqo "apps/$appName-$appVer.apkm" -d "$splits"
-        rm "apps/$appName-$appVer.apkm"
-        appDir="apps/$appName-$appVer"
-        mkdir "$appDir"
+        echo "Reducing app size..."
+        splits="splits"
+        mkdir -p "$splits"
+        unzip -qqo "$appName-$appVer.$appType" -d "$splits"
+        rm "$appName-$appVer.$appType"
+        appDir="$appName-$appVer"
+        mkdir -p "$appDir"
         cp "$splits/base.apk" "$appDir"
-        cp "$splits/split_config.${arch//-/_}.apk" "$appDir" &> /dev/null
-        locale=$(getprop persist.sys.locale | sed 's/-.*//g')
-        if [ ! -e "$splits/split_config.${locale}.apk" ]; then
-            locale=$(getprop ro.product.locale | sed 's/-.*//g')
-        fi
-        cp "$splits/split_config.${locale}.apk" "$appDir" &> /dev/null
-        cp "$splits"/split_config.*dpi.apk "$appDir" &> /dev/null
+        cp "$splits/split_config.${arch//-/_}.apk" "$appDir" 2>/dev/null
+        locale=$(locale | grep LANG | cut -d= -f2 | cut -d_ -f1)
+        cp "$splits/split_config.${locale}.apk" "$appDir" 2>/dev/null
+        cp "$splits"/split_config.*dpi.apk "$appDir" 2>/dev/null
         rm -rf "$splits"
-        java -jar ApkEditor.jar m -i "$appDir" -o "apps/$appName-$appVer.apk" &> /dev/null
-        setEnv "${appName//-/_}Size" "$(du -b "apps/$appName-$appVer.apk" | cut -d $'\t' -f 1)" update "apps/.appSize"
+        if command -v java >/dev/null 2>&1 && [ -f "ApkEditor.jar" ]; then
+            java -jar ApkEditor.jar m -i "$appDir" -o "$appName-$appVer.apk" 2>/dev/null
+            if [ -f "$appName-$appVer.apk" ]; then
+                echo "$(du -b "$appName-$appVer.apk" | cut -f1)" > .appSize
+            fi
+        else
+            echo "Java or ApkEditor.jar not found. Skipping APK merging."
+        fi
     }
     antiSplitApkm
 fi

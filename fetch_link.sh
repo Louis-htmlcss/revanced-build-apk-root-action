@@ -71,29 +71,7 @@ echo "$appType" >&2
 # Download the file
 wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --show-progress --user-agent="$UserAgent"
 
+
 if [ "$appType" == "bundle" ]; then
-    antiSplitApkm() {
-        echo "Reducing app size..."
-        splits="splits"
-        mkdir -p "$splits"
-        unzip -qqo "$appName-$appVer.$appType" -d "$splits"
-        rm "$appName-$appVer.$appType"
-        appDir="$appName-$appVer"
-        mkdir -p "$appDir"
-        cp "$splits/base.apk" "$appDir"
-        cp "$splits/split_config.${arch//-/_}.apk" "$appDir" 2>/dev/null
-        locale=$(locale | grep LANG | cut -d= -f2 | cut -d_ -f1)
-        cp "$splits/split_config.${locale}.apk" "$appDir" 2>/dev/null
-        cp "$splits"/split_config.*dpi.apk "$appDir" 2>/dev/null
-        rm -rf "$splits"
-        if command -v java >/dev/null 2>&1 && [ -f "ApkEditor.jar" ]; then
-            java -jar ApkEditor.jar m -i "$appDir" -o "$appName-$appVer.apk" 2>/dev/null
-            if [ -f "$appName-$appVer.apk" ]; then
-                echo "$(du -b "$appName-$appVer.apk" | cut -f1)" > .appSize
-            fi
-        else
-            echo "Java or ApkEditor.jar not found. Skipping APK merging."
-        fi
-    }
-    antiSplitApkm
+    java -jar bundletool-all.jar build-apks --apks="$appName-$appVer.apks" --mode=universal --bundle="$appName-$appVer.$appType" --output-dir="."
 fi

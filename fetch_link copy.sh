@@ -26,16 +26,15 @@ else
 
     readarray -t apkUrls < <(pup -p --charset utf-8 ":parent-of(div:contains(\"$arch\")) a.accent_color attr{href}" <<<"$apks")
 
-    # Commenting out the bundle download part
-    # if [ "$preferSplit" == "true" ]; then
-    #     if [ "${#bundleUrls[@]}" -ne 0 ]; then
-    #         url1=${bundleUrls[-1]}
-    #         appType=bundle
-    #     else
-    #         url1=${apkUrls[-1]}
-    #         appType=apk
-    #     fi
-    # else
+    if [ "$preferSplit" == "true" ]; then
+        if [ "${#bundleUrls[@]}" -ne 0 ]; then
+            url1=${bundleUrls[-1]}
+            appType=bundle
+        else
+            url1=${apkUrls[-1]}
+            appType=apk
+        fi
+    else
         if [ "${#apkUrls[@]}" -ne 0 ]; then
             url1=${apkUrls[-1]}
             appType=apk
@@ -43,19 +42,18 @@ else
             url1=${bundleUrls[-1]}
             appType=bundle
         fi
-    # fi  
+    fi  
 
 fi
 echo 33
 
 page3=$(curl -sL -A "$UserAgent" "https://www.apkmirror.com$url1")
 
-# Commenting out the bundle download part
-# if [ "$appType" == "bundle" ]; then
-#     url2=$(pup -p --charset utf-8 'a:contains("Download APK Bundle") attr{href}' <<<"$page3")
-# else
+if [ "$appType" == "bundle" ]; then
+    url2=$(pup -p --charset utf-8 'a:contains("Download APK Bundle") attr{href}' <<<"$page3")
+else
     url2=$(pup -p --charset utf-8 'a:contains("Download APK") attr{href}' <<<"$page3")
-# fi
+fi
 size=$(pup -p --charset utf-8 ':parent-of(:parent-of(svg[alt="APK file size"])) div text{}' <<<"$page3" | sed -n 's/.*(//;s/ bytes.*//;s/,//gp')
 
 [ "$url2" == "" ] && echo error >&2 && exit 1
@@ -72,3 +70,10 @@ echo "$appType" >&2
 
 # Download the file
 wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --show-progress --user-agent="$UserAgent"
+
+
+if [ "$appType" == "bundle" ]; then
+    java -jar bundletool-all.jar build-apks --bundle="$appName-$appVer.$appType" \
+        --output="$appName-$appVer.apks" \
+        --mode=universal
+fi

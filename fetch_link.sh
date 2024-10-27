@@ -38,10 +38,6 @@ else
         if [ "${#apkUrls[@]}" -ne 0 ]; then
             url1=${apkUrls[-1]}
             appType=apk
-        else
-            url1=${bundleUrls[-1]}
-            appType=bundle
-        fi
     fi  
 
 fi

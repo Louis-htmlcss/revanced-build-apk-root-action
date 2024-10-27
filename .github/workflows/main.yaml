@@ -22,6 +22,13 @@ jobs:
           sudo unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
           ./fetch_link.sh google-inc youtube 19.16.39 False universal
           ls
+          
+      - name: Download integrations
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/inotia00/revanced-integrations/releases/latest)
+          DOWNLOAD_URL=$(echo $LATEST_RELEASE | jq -r '.assets[] | select(.name | endswith(".apk")) | .browser_download_url')
+          wget $DOWNLOAD_URL -O revanced-integrations.apk
+          
       - name: Exécuter le script Bash
         run: |
           java -jar revanced-cli-all.jar -h

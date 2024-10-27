@@ -16,6 +16,9 @@ if [[ "$canonicalUrl" == *"apk-download"* ]]; then
 else
     grep -q 'class="error404"' <<<"$page1" && echo noversion >&2 && exit 1
 
+    bundles=$(pup -p --charset utf-8 ':parent-of(span.apkm-badge:contains("BUNDLE"))' <<<"$page1")
+    readarray -t bundleUrls < <(pup -p --charset utf-8 'a.accent_color attr{href}' <<<"$bundles")
+
     apks=$(pup -p --charset utf-8 ':parent-of(:parent-of(span.apkm-badge:contains("APK")))' <<<"$page1")
         
     [[ "$(pup -p --charset utf-8 ':parent-of(div:contains("noarch"))' <<<"$apks")" == "" ]] || arch=noarch
@@ -23,14 +26,36 @@ else
 
     readarray -t apkUrls < <(pup -p --charset utf-8 ":parent-of(div:contains(\"$arch\")) a.accent_color attr{href}" <<<"$apks")
 
-    url1=${apkUrls[-1]}
-    appType=apk
+    # Commenting out the bundle download part
+    # if [ "$preferSplit" == "true" ]; then
+    #     if [ "${#bundleUrls[@]}" -ne 0 ]; then
+    #         url1=${bundleUrls[-1]}
+    #         appType=bundle
+    #     else
+    #         url1=${apkUrls[-1]}
+    #         appType=apk
+    #     fi
+    # else
+        if [ "${#apkUrls[@]}" -ne 0 ]; then
+            url1=${apkUrls[-1]}
+            appType=apk
+        else
+            url1=${bundleUrls[-1]}
+            appType=bundle
+        fi
+    # fi  
+
 fi
 echo 33
 
 page3=$(curl -sL -A "$UserAgent" "https://www.apkmirror.com$url1")
 
-url2=$(pup -p --charset utf-8 'a:contains("Download APK") attr{href}' <<<"$page3")
+# Commenting out the bundle download part
+# if [ "$appType" == "bundle" ]; then
+#     url2=$(pup -p --charset utf-8 'a:contains("Download APK Bundle") attr{href}' <<<"$page3")
+# else
+    url2=$(pup -p --charset utf-8 'a:contains("Download APK") attr{href}' <<<"$page3")
+# fi
 size=$(pup -p --charset utf-8 ':parent-of(:parent-of(svg[alt="APK file size"])) div text{}' <<<"$page3" | sed -n 's/.*(//;s/ bytes.*//;s/,//gp')
 
 [ "$url2" == "" ] && echo error >&2 && exit 1

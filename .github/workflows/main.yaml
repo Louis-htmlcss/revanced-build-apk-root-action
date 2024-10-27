@@ -41,3 +41,8 @@ jobs:
             -o revanced-extended.apk \
             youtube-19.15.36.apk
       
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: revanced-extended-apk
+          path: revanced-extended.apk

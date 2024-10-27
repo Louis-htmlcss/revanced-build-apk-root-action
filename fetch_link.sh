@@ -70,3 +70,27 @@ echo "$appType" >&2
 
 # Download the file
 wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --show-progress --user-agent="$UserAgent"
+
+if [ "$appType" == "bundle" ]; then
+    antiSplitApkm() {
+        "${header[@]}" --infobox "Please Wait !!\nReducing app size..." 12 45
+        splits="apps/splits"
+        mkdir "$splits"
+        unzip -qqo "apps/$appName-$appVer.apkm" -d "$splits"
+        rm "apps/$appName-$appVer.apkm"
+        appDir="apps/$appName-$appVer"
+        mkdir "$appDir"
+        cp "$splits/base.apk" "$appDir"
+        cp "$splits/split_config.${arch//-/_}.apk" "$appDir" &> /dev/null
+        locale=$(getprop persist.sys.locale | sed 's/-.*//g')
+        if [ ! -e "$splits/split_config.${locale}.apk" ]; then
+            locale=$(getprop ro.product.locale | sed 's/-.*//g')
+        fi
+        cp "$splits/split_config.${locale}.apk" "$appDir" &> /dev/null
+        cp "$splits"/split_config.*dpi.apk "$appDir" &> /dev/null
+        rm -rf "$splits"
+        java -jar ApkEditor.jar m -i "$appDir" -o "apps/$appName-$appVer.apk" &> /dev/null
+        setEnv "${appName//-/_}Size" "$(du -b "apps/$appName-$appVer.apk" | cut -d $'\t' -f 1)" update "apps/.appSize"
+    }
+    antiSplitApkm
+fi

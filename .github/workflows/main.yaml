@@ -26,7 +26,7 @@ jobs:
           unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
           
       - name: Setup fetch script
-        run: chmod +x ./main.sh
+        run: chmod +x ./main.sh && chmod +x ./script.sh
       
       - name: Download execute script
         run: |

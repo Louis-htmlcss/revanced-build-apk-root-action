@@ -41,7 +41,6 @@ jobs:
             -b revanced-patches.jar \
             -m revanced-integrations.apk \
             --options options.json \
-            -p \
             -e "GmsCore support" \
             -o revanced-extended.apk \
             youtube-19.16.39.apk

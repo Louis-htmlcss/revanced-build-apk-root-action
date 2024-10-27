@@ -38,8 +38,8 @@ else
         if [ "${#apkUrls[@]}" -ne 0 ]; then
             url1=${apkUrls[-1]}
             appType=apk
+        fi  
     fi  
-
 fi
 echo 33
 

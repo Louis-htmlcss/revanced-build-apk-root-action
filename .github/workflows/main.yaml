@@ -18,6 +18,7 @@ jobs:
     
       - name: Fetch link
         run: |
+          sudo apt update
           sudo apt install pup wget
           ./fetch_link.sh google-inc youtube 19.15.36 false
       - name: Exécuter le script Bash

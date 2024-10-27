@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
           sudo unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
-          ./fetch_link.sh google-inc youtube 19.15.36 false universal
+          ./fetch_link.sh google-inc youtube 19.15.36 False universal
           ls
       - name: Exécuter le script Bash
         run: |

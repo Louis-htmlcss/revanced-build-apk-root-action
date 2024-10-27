@@ -44,7 +44,6 @@ jobs:
             --options options.json \
             -p \
             -e "GmsCore support" \
-            --mount \
             -o revanced-extended.apk \
             youtube-19.16.39.apk
       

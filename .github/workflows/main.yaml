@@ -37,8 +37,8 @@ jobs:
         run: |
           chmod +x ./script.sh
           ./script.sh inotia00/revanced-integrations apk revanced-integrations.apk
-          ./script.sh inotia00/revanced-patches jar revanced-integrations.jar
-          
+          ./script.sh inotia00/revanced-patches jar revanced-patches.jar
+          ./script.sh inotia00/revanced-cli jar revanced-cli-all.jar
 
           
       # Build process

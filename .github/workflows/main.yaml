@@ -1,41 +1,52 @@
-name: Build Modules
+name: Build ReVanced Extended
 on:
   workflow_dispatch:
 
 jobs:
-  run:
+  build:
+    name: Build APK
     permissions: write-all
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/setup-java@v4
+      # Setup environment
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: "17"
-      - name: Checkout du code
+          
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Grant execute permission for fetch_link.sh
+        
+      # Prepare tools
+      - name: Install pup HTML parser
+        run: |
+          wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
+          unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
+          
+      - name: Setup fetch script
         run: chmod +x ./fetch_link.sh
-    
-      - name: Fetch link
+      
+      # Download required files
+      - name: Download YouTube APK
         run: |
-          sudo wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
-          sudo unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
           ./fetch_link.sh google-inc youtube 19.16.39 False universal
-          ls
           
-      - name: Download integrations
+      - name: Download ReVanced Integrations
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/inotia00/revanced-integrations/releases/latest)
-          DOWNLOAD_URL=$(echo $LATEST_RELEASE | jq -r '.assets[] | select(.name | endswith(".apk")) | .browser_download_url')
-          wget $DOWNLOAD_URL -O revanced-integrations.apk
+          chmod +x ./script.sh
+          ./script.sh inotia00/revanced-integrations apk revanced-integrations.apk
+          ./script.sh inotia00/revanced-patches jar revanced-integrations.jar
           
-      - name: Exécuter le script Bash
-        run: |
-          java -jar revanced-cli-all.jar -h
-      - name: generate-patches
+
+          
+      # Build process
+      - name: Generate patch options
         run: |
           java -jar revanced-cli-all.jar options --path options.json --overwrite revanced-patches.jar
-      - name: Build revanced
+          
+      - name: Build ReVanced Extended
         run: |
           java -jar revanced-cli-all.jar patch \
             -b revanced-patches.jar \
@@ -45,7 +56,8 @@ jobs:
             -o revanced-extended.apk \
             youtube-19.16.39.apk
       
-      - name: Upload APK as artifact
+      # Upload artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: revanced-extended-apk

@@ -14,6 +14,9 @@ jobs:
       - name: Checkout du code
         uses: actions/checkout@v4
       
+      - name: Fetch link
+        run: |
+          ./fetch_link.sh google-inc youtube 19.15.36 false
       - name: Exécuter le script Bash
         run: |
           java -jar revanced-cli-all.jar -h
@@ -31,5 +34,5 @@ jobs:
             -e "GmsCore support" \
             --mount \
             -o revanced-extended.apk \
-            youtube2.apk
+            youtube-19.15.36.apk
       

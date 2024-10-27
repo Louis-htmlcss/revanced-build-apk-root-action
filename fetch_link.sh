@@ -2,11 +2,11 @@
 
 UserAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
-arch=$(getprop ro.product.cpu.abi)
 developer="$1"
 appName="$2"
 appVer="$3"
 preferSplit="$4"
+arch="$5"  
 
 page1=$(curl -vsL -A "$UserAgent" "https://www.apkmirror.com/apk/$developer/$appName/$appName-$appVer-release" 2>&1)
 

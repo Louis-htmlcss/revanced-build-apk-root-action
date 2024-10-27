@@ -13,7 +13,9 @@ jobs:
           java-version: "17"
       - name: Checkout du code
         uses: actions/checkout@v4
-      
+      - name: Grant execute permission for fetch_link.sh
+        run: chmod +x ./fetch_link.sh
+    
       - name: Fetch link
         run: |
           ./fetch_link.sh google-inc youtube 19.15.36 false

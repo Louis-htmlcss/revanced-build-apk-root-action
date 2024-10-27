@@ -73,5 +73,7 @@ wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --sho
 
 
 if [ "$appType" == "bundle" ]; then
-    java -jar bundletool-all.jar build-apks --apks="$appName-$appVer.apks" --mode=universal --bundle="$appName-$appVer.$appType" --output-dir="."
+    java -jar bundletool-all.jar build-apks --bundle="$appName-$appVer.$appType" \
+        --output="$appName-$appVer.apks" \
+        --mode=universal
 fi

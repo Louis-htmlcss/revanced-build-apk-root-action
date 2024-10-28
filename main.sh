@@ -20,6 +20,10 @@ APP_VERSION=$(yq e ".apps.$APP_NAME.download.version" test.yaml)
 BUILD_MODE=$(yq e ".apps.$APP_NAME.build_mode" test.yaml)
 OUTPUT_APK="revanced-$APP_NAME.apk"
 
+EXCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.excluded[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
+INCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.included[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
+ROOT_PATCH=$(yq e ".apps.$APP_NAME.root_patch" test.yaml)
+
 # Création du dossier de travail
 WORK_DIR="revanced_build_$APP_NAME"
 mkdir -p "$WORK_DIR"
@@ -59,9 +63,7 @@ check_error "Failed to generate patch options"
 
 # Construction de ReVanced Extended
 echo "Building ReVanced for $APP_NAME..."
-EXCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.excluded[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
-INCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.included[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
-ROOT_PATCH=$(yq e ".apps.$APP_NAME.root_patch" test.yaml)
+
 
 PATCH_ARGS=""
 if [ ! -z "$EXCLUDED_PATCHES" ]; then

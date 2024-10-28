@@ -10,18 +10,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: Install and cache tools
+        id: cache-tools
+        uses: actions/cache@v3
         with:
-          distribution: "zulu"
-          java-version: "17"
-      
-      - name: Install yq and pup
+          path: /usr/local/bin
+          key: ${{ runner.os }}-tools-pup-yq
+          
+      - name: Install tools if not cached
+        if: steps.cache-tools.outputs.cache-hit != 'true'
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
-          unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
+          sudo unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
+          sudo chmod +x /usr/local/bin/pup
           
       - id: set-matrix
         run: |

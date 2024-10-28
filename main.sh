@@ -87,7 +87,7 @@ eval "java -jar revanced-cli-all.jar patch \
     --options options.json \
     $PATCH_ARGS \
     -o \"$OUTPUT_APK\" \
-    \"$APP_NAME-*.apk\""
+    \"$APP_NAME-$APP_VERSION.apk\""
 check_error "Failed to build ReVanced for $APP_NAME"
 
 # Déplacer l'APK vers le répertoire parent

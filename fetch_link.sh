@@ -71,7 +71,7 @@ echo "$size" >&2
 echo "$appType" >&2
 
 # Download the file
-wget -q -c "https://www.apkmirror.com$url3" -O "$appName-$appVer.$appType" --show-progress --user-agent="$UserAgent"
+curl -L -A "$UserAgent" -o "$appName-$appVer.$appType" "https://www.apkmirror.com$url3"
 
 # If it's a bundle (apkm), convert it to APK
 if [ "$appType" == "bundle" ]; then

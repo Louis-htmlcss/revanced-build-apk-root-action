@@ -80,7 +80,7 @@ fi
 if [ ! -z "$ROOT_PATCH" ]; then
     PATCH_ARGS="$PATCH_ARGS -e \"$ROOT_PATCH\""
 fi
-
+ls
 eval "java -jar revanced-cli-all.jar patch \
     -b revanced-patches.jar \
     -m revanced-integrations.apk \

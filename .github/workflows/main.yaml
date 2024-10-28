@@ -56,7 +56,7 @@ jobs:
           ./main.sh ${{ matrix.app }}
       
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: revanced-${{ matrix.app }}-apk
           path: revanced-${{ matrix.app }}.apk

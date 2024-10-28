@@ -4,7 +4,7 @@ global:
   remove_rv_integrations_checks: true  # Supprimer les vérifications des intégrations ReVanced
 apps:
   Youtube:
-    enabled: false
+    enabled: true
     app_name: "youtube"  # Nom de l'application dans les releases  # 'auto', 'latest' ou un numéro de version
     build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
     root_patch: "GMSCore support"
@@ -28,27 +28,3 @@ apps:
         source: "revanced/revanced-patches"
         version: "latest"
   
-  Youtube:
-    enabled: true 
-    app_name: "youtube"  # Nom de l'application dans les releases  # 'auto', 'latest' ou un numéro de version
-    build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
-    root_patch: "GMSCore support"
-    patches:
-      excluded: ["Some Patch", "Some Other Patch"]
-      included: ["Patch something"]
-      patch_selection: "all"  # Options: "all", "default", or "none"
-    download:
-      apkmirror: "https://www.apkmirror.com/apk/google-inc/youtube"
-      uptodown: "https://youtube.en.uptodown.com/android"
-      version: "19-16-39"
-    arch: "all"  # 'arm64-v8a', 'arm-v7a', 'all', 'both'
-    revanced:
-      cli: 
-        source: "revanced/revanced-cli"
-        version: "latest"
-      integrations: 
-        source: "revanced/revanced-integrations"
-        version: "latest"
-      patches: 
-        source: "revanced/revanced-patches"
-        version: "latest"

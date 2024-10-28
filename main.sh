@@ -8,6 +8,7 @@ if [ -z "$APP_NAME" ]; then
 fi
 ls
 cat test.yaml
+echo $(yq e '.apps | keys | .[]' test.yaml)
 # Lecture de la configuration depuis test.yaml
 APP_ENABLED=$(yq e ".apps.$APP_NAME.enabled" test.yaml)
 if [ "$APP_ENABLED" != "true" ]; then

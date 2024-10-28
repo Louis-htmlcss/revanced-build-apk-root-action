@@ -5,8 +5,7 @@ global:
 apps:
   Youtube:
     enabled: true 
-    app_name: "youtube"  # Nom de l'application dans les releases
-    version: "auto"  # 'auto', 'latest' ou un numéro de version
+    app_name: "youtube"  # Nom de l'application dans les releases  # 'auto', 'latest' ou un numéro de version
     build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
     root_patch: "GMSCore support"
     patches:
@@ -16,6 +15,7 @@ apps:
     download:
       apkmirror: "https://www.apkmirror.com/apk/google-inc/youtube"
       uptodown: "https://youtube.en.uptodown.com/android"
+      version: "19.16.39"
     arch: "all"  # 'arm64-v8a', 'arm-v7a', 'all', 'both'
     revanced:
       cli: 

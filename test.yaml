@@ -6,9 +6,9 @@ apps:
   Youtube:
     enabled: true 
     app_name: "youtube"  # Nom de l'application dans les releases
-    version: "auto"  # 'auto', 'latest', 'beta' ou un numéro de version
-    include_stock: true
+    version: "auto"  # 'auto', 'latest' ou un numéro de version
     build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
+    root_patch: "GMSCore support"
     patches:
       excluded: ["Some Patch", "Some Other Patch"]
       included: ["Patch something"]
@@ -16,7 +16,6 @@ apps:
     download:
       apkmirror: "https://www.apkmirror.com/apk/google-inc/youtube"
       uptodown: "https://youtube.en.uptodown.com/android"
-    apkmirror_dpi: "360-480dpi"
     arch: "all"  # 'arm64-v8a', 'arm-v7a', 'all', 'both'
     revanced:
       cli: 

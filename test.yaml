@@ -3,7 +3,7 @@ global:
   parallel_jobs: 1  # Nombre de cœurs à utiliser pour le patching parallèle (par défaut: nproc)
   remove_rv_integrations_checks: true  # Supprimer les vérifications des intégrations ReVanced
 apps:
-  Youtube:
+  youtube:
     enabled: true
     app_name: "youtube"  # Nom de l'application dans les releases  # 'auto', 'latest' ou un numéro de version
     build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root

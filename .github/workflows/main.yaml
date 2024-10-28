@@ -33,6 +33,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      - name: Debug directory contents
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
+          echo "test.yaml contents:"
+          cat test.yaml || echo "Cannot read test.yaml"
+          
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64

@@ -9,6 +9,14 @@ jobs:
       apps: ${{ steps.set-matrix.outputs.apps }}
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install yq and pup
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
+          unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
+          
       - id: set-matrix
         run: |
           APPS=$(yq e '.apps | keys | .[]' test.yaml | jq -R -s -c 'split("\n")[:-1]')
@@ -33,17 +41,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-          git status
-        
-      - name: Install pup HTML parser
-        run: |
-          wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
-          unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
-          
       - name: Setup fetch script
         run: |
           chmod +x ./main.sh

@@ -15,7 +15,7 @@ apps:
     download:
       apkmirror: "https://www.apkmirror.com/apk/google-inc/youtube"
       uptodown: "https://youtube.en.uptodown.com/android"
-      version: "19.16.39"
+      version: "19-16-39"
     arch: "all"  # 'arm64-v8a', 'arm-v7a', 'all', 'both'
     revanced:
       cli: 

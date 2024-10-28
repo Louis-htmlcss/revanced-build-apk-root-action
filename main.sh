@@ -8,7 +8,7 @@ if [ -z "$APP_NAME" ]; then
 fi
 
 # Lecture de la configuration depuis test.yaml
-APP_VERSION=$(yq e ".apps.$APP_NAME.version" test.yaml)
+APP_VERSION=$(yq e ".apps.$APP_NAME.download.version" test.yaml)
 BUILD_MODE=$(yq e ".apps.$APP_NAME.build_mode" test.yaml)
 OUTPUT_APK="revanced-$APP_NAME.apk"
 
@@ -28,9 +28,9 @@ check_error() {
 # Téléchargement de l'APK
 echo "Downloading $APP_NAME APK..."
 if [ "$APP_VERSION" = "auto" ] || [ "$APP_VERSION" = "latest" ]; then
-    ../fetch_link.sh google-inc $APP_NAME latest False universal
+    ../fetch_link.sh "$(yq e ".apps.$APP_NAME.download.apkmirror" test.yaml)" latest false "$(yq e ".apps.$APP_NAME.arch" test.yaml)"
 else
-    ../fetch_link.sh google-inc $APP_NAME $APP_VERSION False universal
+    ../fetch_link.sh "$(yq e ".apps.$APP_NAME.download.apkmirror" test.yaml)" "$APP_VERSION" false "$(yq e ".apps.$APP_NAME.arch" test.yaml)"
 fi
 check_error "Failed to download $APP_NAME APK"
 

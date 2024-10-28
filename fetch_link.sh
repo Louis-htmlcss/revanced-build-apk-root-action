@@ -2,13 +2,15 @@
 
 UserAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 
-developer="$1"
-appName="$2"
-appVer="$3"
-preferSplit="$4"
-arch="$5"  
+apkMirrorUrl="$1"
+appVer="$2" 
+preferSplit="$3"
+arch="$4"
 
-page1=$(curl -vsL -A "$UserAgent" "https://www.apkmirror.com/apk/$developer/$appName/$appName-$appVer-release" 2>&1)
+# Extract app name from URL
+appName=$(echo "$apkMirrorUrl" | rev | cut -d'/' -f1 | rev)
+
+page1=$(curl -vsL -A "$UserAgent" "$apkMirrorUrl/$appName-$appVer-release" 2>&1)
 
 canonicalUrl=$(pup -p --charset utf-8 'link[rel="canonical"] attr{href}' <<<"$page1")
 if [[ "$canonicalUrl" == *"apk-download"* ]]; then

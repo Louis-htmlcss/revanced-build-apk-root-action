@@ -5,6 +5,9 @@ on:
 jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     outputs:
       apps: ${{ steps.set-matrix.outputs.apps }}
     steps:
@@ -14,17 +17,21 @@ jobs:
         id: cache-tools
         uses: actions/cache@v3
         with:
-          path: /usr/local/bin
-          key: ${{ runner.os }}-tools-pup-yq
+          path: ~/.local/bin
+          key: ${{ runner.os }}-tools-pup-yq-v1
           
       - name: Install tools if not cached
         if: steps.cache-tools.outputs.cache-hit != 'true'
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
+          mkdir -p ~/.local/bin
+          wget -qO ~/.local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod +x ~/.local/bin/yq
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
-          sudo unzip pup_v0.4.0_linux_amd64.zip -d /usr/local/bin
-          sudo chmod +x /usr/local/bin/pup
+          unzip pup_v0.4.0_linux_amd64.zip -d ~/.local/bin
+          chmod +x ~/.local/bin/pup
+          
+      - name: Add tools to PATH
+        run: echo "~/.local/bin" >> $GITHUB_PATH
           
       - id: set-matrix
         run: |

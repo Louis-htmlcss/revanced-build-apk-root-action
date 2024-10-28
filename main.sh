@@ -6,7 +6,8 @@ if [ -z "$APP_NAME" ]; then
     echo "Error: App name must be provided"
     exit 1
 fi
-
+ls
+cat test.yaml
 # Lecture de la configuration depuis test.yaml
 APP_ENABLED=$(yq e ".apps.$APP_NAME.enabled" test.yaml)
 if [ "$APP_ENABLED" != "true" ]; then

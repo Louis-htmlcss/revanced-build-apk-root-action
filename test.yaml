@@ -4,7 +4,7 @@ global:
   remove_rv_integrations_checks: true  # Supprimer les vérifications des intégrations ReVanced
 apps:
   Youtube:
-    enabled: true 
+    enabled: false
     app_name: "youtube"  # Nom de l'application dans les releases  # 'auto', 'latest' ou un numéro de version
     build_mode: "root-apk"  # 'apk' pour non-root, 'root-apk' pour root
     root_patch: "GMSCore support"

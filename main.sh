@@ -8,6 +8,12 @@ if [ -z "$APP_NAME" ]; then
 fi
 
 # Lecture de la configuration depuis test.yaml
+APP_ENABLED=$(yq e ".apps.$APP_NAME.enabled" test.yaml)
+if [ "$APP_ENABLED" != "true" ]; then
+    echo "Error: App $APP_NAME is not enabled in config"
+    exit 1
+fi
+
 APP_VERSION=$(yq e ".apps.$APP_NAME.download.version" test.yaml)
 BUILD_MODE=$(yq e ".apps.$APP_NAME.build_mode" test.yaml)
 OUTPUT_APK="revanced-$APP_NAME.apk"

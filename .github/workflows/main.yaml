@@ -48,6 +48,7 @@ jobs:
           chmod +x ./main.sh
           chmod +x ./script.sh
           chmod +x ./fetch_link.sh
+          ls
       
       - name: Build app
         run: |

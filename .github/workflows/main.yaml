@@ -11,10 +11,10 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          MATRIX=$(yq e '[.apps[] | select(.enabled == true) | 
-            .revanced | to_entries | .[] | select(.value.enabled == true) | 
-            {"app": parent.app_name, "variant": .key, "version": .value.app_version, 
-             "parallel": parent.parent.global.parallel_jobs}]' test.yaml | 
+          MATRIX=$(yq eval '[.apps[] | select(.enabled == true) | 
+            .revanced | to_entries[] | select(.value.enabled == true) | 
+            {"app": parent.parent.app_name, "variant": .key, "version": .value.app_version, 
+             "parallel": parent.parent.parent.global.parallel_jobs}]' test.yaml | 
             jq -c .)
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 

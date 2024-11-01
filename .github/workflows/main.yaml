@@ -9,6 +9,10 @@ jobs:
       patches: ${{ steps.set-matrix.outputs.patches }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
       - id: set-matrix
         run: |
           PATCHES=$(yq e '.apps | to_entries | map(.key as $app | .value.revanced | to_entries | map({app: $app, patch: .key})) | flatten | .[] | @json' test.yaml | jq -s -c)

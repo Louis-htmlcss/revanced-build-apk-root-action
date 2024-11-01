@@ -6,22 +6,26 @@ jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
     outputs:
-      apps: ${{ steps.set-matrix.outputs.apps }}
+      build-matrix: ${{ steps.set-matrix.outputs.build-matrix }}
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          APPS=$(yq e '.apps | keys | .[]' test.yaml | jq -R -s -c 'split("\n")[:-1]')
-          echo "apps=$APPS" >> $GITHUB_OUTPUT
+          # Créer une matrice avec app et patch
+          MATRIX=$(yq e '.apps[] | select(.enabled == true) | 
+            .revanced | to_entries | .[] | select(.value.enabled == true) | 
+            {"app": parent.parent.app_name, "patch": .key}' test.yaml | 
+            jq -s -c .)
+          echo "build-matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare-matrix
-    name: Build ${{ matrix.app }}
+    name: Build ${{ matrix.app }}-${{ matrix.patch }}
     permissions: write-all
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: ${{ fromJson(needs.prepare-matrix.outputs.apps) }}
+        include: ${{ fromJson(needs.prepare-matrix.outputs.build-matrix) }}
     
     steps:
       - name: Setup Java
@@ -53,10 +57,10 @@ jobs:
       
       - name: Build app
         run: |
-          ./main.sh ${{ matrix.app }}
+          ./main.sh ${{ matrix.app }} ${{ matrix.patch }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: revanced-${{ matrix.app }}-apk
-          path: revanced-${{ matrix.app }}.apk
+          name: revanced-${{ matrix.app }}-${{ matrix.patch }}-apk
+          path: revanced-${{ matrix.app }}-${{ matrix.patch }}.apk

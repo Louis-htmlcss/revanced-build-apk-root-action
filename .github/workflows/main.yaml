@@ -11,11 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          MATRIX=$(yq e '
-            .apps | to_entries | .[] | 
-            .value.revanced | keys | .[] | 
-            {"app": parent.key, "patch": .}
-          ' test.yaml | jq -s -c .)
+          MATRIX=$(yq e '.apps | to_entries[] | .value.revanced | keys[] | {"app": parent.parent.key, "patch": .}' test.yaml | jq -s -c .)
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   build:

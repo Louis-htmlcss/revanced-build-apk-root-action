@@ -9,18 +9,14 @@ jobs:
       patches: ${{ steps.set-matrix.outputs.patches }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
       - id: set-matrix
         run: |
-          PATCHES=$(yq e '.apps | to_entries | map(.key as $app | .value.revanced | to_entries | map({app: $app, patch: .key})) | flatten | .[] | @json' test.yaml | jq -s -c)
+          PATCHES=$(yq e '.apps.youtube.revanced | keys | .[]' test.yaml | jq -R -s -c 'split("\n")[:-1]')
           echo "patches=$PATCHES" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare-matrix
-    name: Build ${{ matrix.patch.app }} - ${{ matrix.patch.patch }}
+    name: Build ${{ matrix.patch }}
     permissions: write-all
     runs-on: ubuntu-latest
     strategy:
@@ -56,10 +52,10 @@ jobs:
       
       - name: Build app
         run: |
-          ./main.sh ${{ matrix.patch.app }} ${{ matrix.patch.patch }}
+          ./main.sh ${{ matrix.patch }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: revanced-${{ matrix.patch.app }}-${{ matrix.patch.patch }}-apk
-          path: revanced-${{ matrix.patch.app }}-${{ matrix.patch.patch }}.apk
+          name: revanced-${{ matrix.patch }}-apk
+          path: revanced-${{ matrix.patch }}.apk

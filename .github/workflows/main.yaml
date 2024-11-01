@@ -9,19 +9,24 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set Matrix
-        id: set-matrix
+      - id: set-matrix
         run: |
-          PATCHES=$(yq e '.apps | to_entries | map({app: .key, patches: (.value | with_entries(select(.key != "enabled" and .key != "app_name" and .key != "build_mode" and .key != "root_patch" and .key != "patches" and .key != "download" and .key != "arch")) | keys))} | {app: .app, patches: .patches} )' test.yaml)
-          MATRIX=$(echo $PATCHES | jq -r '[.[] | {app: .app, patch: .patches[]}]')
+          MATRIX=$(yq e '
+            .apps | to_entries | .[] | 
+            .value.revanced | keys | .[] | 
+            {"app": parent.key, "patch": .}
+          ' test.yaml | jq -s -c .)
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare-matrix
+    name: Build ${{ matrix.app }}-${{ matrix.patch }}
+    permissions: write-all
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-    name: Build ${{ matrix.app }} - ${{ matrix.patch }}
+      matrix:
+        include: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    
     steps:
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -31,11 +36,6 @@ jobs:
           
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
 
       - name: Install pup HTML parser
         run: |
@@ -49,9 +49,9 @@ jobs:
           chmod +x ./fetch_link.sh
           ls
       
-      - name: Build app with patch
+      - name: Build app
         run: |
-          ./main.sh "${{ matrix.app }}" "${{ matrix.patch }}"
+          ./main.sh ${{ matrix.app }} ${{ matrix.patch }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4

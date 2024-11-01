@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Vérification des paramètres
+# L'application et le patch à utiliser sont passés en paramètres
 APP_NAME="$1"
 PATCH_NAME="$2"
 
 if [ -z "$APP_NAME" ] || [ -z "$PATCH_NAME" ]; then
-    echo "Error: App name and Patch name must be provided"
+    echo "Error: Both app name and patch name must be provided"
     exit 1
 fi
 
 ls
 cat test.yaml
+echo $(yq e '.apps | keys | .[]' test.yaml)
 
 # Lecture de la configuration depuis test.yaml
 APP_ENABLED=$(yq e ".apps.$APP_NAME.enabled" test.yaml)
@@ -19,15 +20,14 @@ if [ "$APP_ENABLED" != "true" ]; then
     exit 1
 fi
 
-PATCH_ENABLED=$(yq e ".apps.$APP_NAME.$PATCH_NAME.enabled" test.yaml)
+PATCH_ENABLED=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.enabled" test.yaml)
 if [ "$PATCH_ENABLED" != "true" ]; then
-    echo "Error: Patch $PATCH_NAME for app $APP_NAME is not enabled in config"
+    echo "Error: Patch $PATCH_NAME is not enabled for $APP_NAME in config"
     exit 1
 fi
 
-APP_VERSION=$(yq e ".apps.$APP_NAME.download.version" test.yaml)
+APP_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.app_version" test.yaml)
 BUILD_MODE=$(yq e ".apps.$APP_NAME.build_mode" test.yaml)
-PATCH_VERSION=$(yq e ".apps.$APP_NAME.$PATCH_NAME.app_version" test.yaml)
 OUTPUT_APK="revanced-$APP_NAME-$PATCH_NAME.apk"
 
 # Création du dossier de travail
@@ -45,7 +45,7 @@ check_error() {
 }
 
 # Téléchargement de l'APK
-echo "Downloading $APP_NAME APK with patch $PATCH_NAME..."
+echo "Downloading $APP_NAME APK..."
 if [ "$APP_VERSION" = "auto" ] || [ "$APP_VERSION" = "latest" ]; then
     ../fetch_link.sh "$(yq e ".apps.$APP_NAME.download.apkmirror" test.yaml)" latest false "$(yq e ".apps.$APP_NAME.arch" test.yaml)"
 else
@@ -54,36 +54,30 @@ fi
 check_error "Failed to download $APP_NAME APK"
 
 # Téléchargement des composants ReVanced spécifiques au patch
-echo "Downloading ReVanced components for patch $PATCH_NAME..."
-PATCH_CONFIG_PREFIX=".apps.$APP_NAME.$PATCH_NAME"
-for repo in "$(yq e "${PATCH_CONFIG_PREFIX}.cli.source" test.yaml):jar:$(yq e "${PATCH_CONFIG_PREFIX}.cli.version" test.yaml)" \
-            "$(yq e "${PATCH_CONFIG_PREFIX}.integrations.source" test.yaml):apk:$(yq e "${PATCH_CONFIG_PREFIX}.integrations.version" test.yaml)" \
-            "$(yq e "${PATCH_CONFIG_PREFIX}.patches.source" test.yaml):jar:$(yq e "${PATCH_CONFIG_PREFIX}.patches.version" test.yaml)"; do
-    IFS=':' read -r repo_path type version <<< "$repo"
-    output_file=""
-    case $type in
-        apk)
-            output_file="${repo_path##*/}.apk"
-            ;;
-        jar)
-            output_file="${repo_path##*/}.jar"
-            ;;
-        *)
-            echo "Unknown type: $type"
-            exit 1
-            ;;
-    esac
-    ../script.sh "$repo_path" "$type" "$output_file" "$version"
-    check_error "Failed to download $output_file"
-done
+echo "Downloading ReVanced components for $PATCH_NAME..."
+CLI_SOURCE=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.cli.source" test.yaml)
+CLI_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.cli.version" test.yaml)
+INT_SOURCE=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.integrations.source" test.yaml)
+INT_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.integrations.version" test.yaml)
+PATCHES_SOURCE=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.source" test.yaml)
+PATCHES_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.version" test.yaml)
+
+../script.sh "$INT_SOURCE" "apk" "revanced-integrations.apk"
+check_error "Failed to download revanced-integrations.apk"
+
+../script.sh "$PATCHES_SOURCE" "jar" "revanced-patches.jar"
+check_error "Failed to download revanced-patches.jar"
+
+../script.sh "$CLI_SOURCE" "jar" "revanced-cli-all.jar"
+check_error "Failed to download revanced-cli-all.jar"
 
 # Génération des options de patch
-echo "Generating patch options for $PATCH_NAME..."
+echo "Generating patch options..."
 java -jar revanced-cli-all.jar options --path options.json --overwrite revanced-patches.jar
 check_error "Failed to generate patch options"
 
-# Construction de ReVanced Extended
-echo "Building ReVanced for $APP_NAME with patch $PATCH_NAME..."
+# Construction de ReVanced
+echo "Building ReVanced for $APP_NAME with $PATCH_NAME patches..."
 EXCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.excluded[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
 INCLUDED_PATCHES=$(yq e ".apps.$APP_NAME.patches.included[]" test.yaml | tr '\n' ' ' | sed 's/ $//')
 ROOT_PATCH=$(yq e ".apps.$APP_NAME.root_patch" test.yaml)
@@ -113,7 +107,7 @@ eval "java -jar revanced-cli-all.jar patch \
     $PATCH_ARGS \
     -o \"$OUTPUT_APK\" \
     \"$APP_NAME-$APP_VERSION.apk\""
-check_error "Failed to build ReVanced for $APP_NAME with patch $PATCH_NAME"
+check_error "Failed to build ReVanced for $APP_NAME with $PATCH_NAME patches"
 
 # Déplacer l'APK vers le répertoire parent
 mv "$OUTPUT_APK" ../

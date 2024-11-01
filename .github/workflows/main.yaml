@@ -6,26 +6,22 @@ jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
     outputs:
-      build-matrix: ${{ steps.set-matrix.outputs.build-matrix }}
+      patches: ${{ steps.set-matrix.outputs.patches }}
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          # Créer une matrice avec app et patch
-          MATRIX=$(yq e '.apps[] | select(.enabled == true) | 
-            .revanced | to_entries | .[] | select(.value.enabled == true) | 
-            {"app": parent.parent.app_name, "patch": .key}' test.yaml | 
-            jq -s -c .)
-          echo "build-matrix=$MATRIX" >> $GITHUB_OUTPUT
+          PATCHES=$(yq e '.apps | to_entries | map(.key as $app | .value.revanced | to_entries | map({app: $app, patch: .key})) | flatten | .[] | @json' test.yaml | jq -s -c)
+          echo "patches=$PATCHES" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare-matrix
-    name: Build ${{ matrix.app }}-${{ matrix.patch }}
+    name: Build ${{ matrix.patch.app }} - ${{ matrix.patch.patch }}
     permissions: write-all
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include: ${{ fromJson(needs.prepare-matrix.outputs.build-matrix) }}
+        patch: ${{ fromJson(needs.prepare-matrix.outputs.patches) }}
     
     steps:
       - name: Setup Java
@@ -42,7 +38,6 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-        
       - name: Install pup HTML parser
         run: |
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
@@ -57,10 +52,10 @@ jobs:
       
       - name: Build app
         run: |
-          ./main.sh ${{ matrix.app }} ${{ matrix.patch }}
+          ./main.sh ${{ matrix.patch.app }} ${{ matrix.patch.patch }}
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: revanced-${{ matrix.app }}-${{ matrix.patch }}-apk
-          path: revanced-${{ matrix.app }}-${{ matrix.patch }}.apk
+          name: revanced-${{ matrix.patch.app }}-${{ matrix.patch.patch }}-apk
+          path: revanced-${{ matrix.patch.app }}-${{ matrix.patch.patch }}.apk

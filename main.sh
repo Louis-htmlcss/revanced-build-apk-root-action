@@ -62,13 +62,13 @@ INT_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.integrations.version" t
 PATCHES_SOURCE=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.source" test.yaml)
 PATCHES_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.version" test.yaml)
 
-../script.sh "$INT_SOURCE" "apk" "revanced-integrations.apk"
+../script.sh "$INT_SOURCE" "apk" ".apk"
 check_error "Failed to download revanced-integrations.apk"
 
-../script.sh "$PATCHES_SOURCE" "jar" "revanced-patches.jar"
+../script.sh "$PATCHES_SOURCE" "jar" ".jar"
 check_error "Failed to download revanced-patches.jar"
 
-../script.sh "$CLI_SOURCE" "jar" "revanced-cli-all.jar"
+../script.sh "$CLI_SOURCE" "jar" ".jar"
 check_error "Failed to download revanced-cli-all.jar"
 
 # Génération des options de patch

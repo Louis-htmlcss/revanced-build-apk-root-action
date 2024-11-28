@@ -11,8 +11,8 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          MATRIX=$(yq e '.apps | to_entries | map(select(.value.enabled == true)) | map(.key as $app | .value.revanced | to_entries | map(select(.value.enabled == true)) | map({"app": $app, "patch": .key})) | flatten' test.yaml)
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          MATRIX=$(yq e '.apps | to_entries | map(select(.value.enabled == true)) | map(.key as $app | .value.revanced | to_entries | map(select(.value.enabled == true)) | map({"app": $app, "patch": .key})) | flatten | tojson' test.yaml)
+          echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare-matrix

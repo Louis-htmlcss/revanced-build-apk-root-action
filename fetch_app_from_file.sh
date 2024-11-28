@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Créer un tableau pour stocker les combinaisons app/patch
-echo "{"
-echo "  \"include\": ["
+# Initialiser la variable pour stocker le JSON
+json="{"
+json+="\"include\":["
 
 first_combo=true
 
@@ -20,9 +20,9 @@ for app in $apps; do
             if [ "$first_combo" = "true" ]; then
                 first_combo=false
             else
-                echo ","
+                json+=","
             fi
-            echo "    {\"app\": \"$app\", \"patch\": \"inotia\"}"
+            json+="{\"app\":\"$app\",\"patch\":\"inotia\"}"
         fi
         
         # Vérifier ReVanced
@@ -31,12 +31,15 @@ for app in $apps; do
             if [ "$first_combo" = "true" ]; then
                 first_combo=false
             else
-                echo ","
+                json+=","
             fi
-            echo "    {\"app\": \"$app\", \"patch\": \"revanced\"}"
+            json+="{\"app\":\"$app\",\"patch\":\"revanced\"}"
         fi
     fi
 done
 
-echo "  ]"
-echo "}"
+json+="]}"
+
+# Échapper les caractères spéciaux pour GitHub Actions
+escaped_json=$(echo "$json" | jq -c .)
+echo "$escaped_json"

@@ -12,17 +12,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Install yq
+      - name: Install dependencies
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
+          sudo apt-get update && sudo apt-get install -y jq
           
       - name: Generate build matrix
         id: set-matrix
         run: |
           chmod +x ./fetch_app_from_file.sh
-          matrix=$(./fetch_app_from_file.sh)
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "matrix=$(./fetch_app_from_file.sh)" >> $GITHUB_OUTPUT
 
   build:
     needs: get-matrix

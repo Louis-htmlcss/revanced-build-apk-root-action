@@ -11,14 +11,12 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          MATRIX=$(yq e '.apps | to_entries | map(select(.value.enabled == true)) | map(.key as $app | .value.revanced | to_entries | map(select(.value.enabled == true)) | map({"app": $app, "patch": .key})) | flatten | tojson' test.yaml)
-          echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(yq eval '.apps | to_entries | map(select(.value.enabled == true)) | map(.key as $app | .value.revanced | to_entries | map(select(.value.enabled == true)) | map({"app": $app, "patch": .key})) | flatten' test.yaml | jq -c '{include: .}')" >> "$GITHUB_OUTPUT"
 
   build:
     needs: prepare-matrix
     strategy:
-      matrix:
-        include: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     name: Build ReVanced ${{ matrix.app }}-${{ matrix.patch }}
     permissions: write-all
     runs-on: ubuntu-latest

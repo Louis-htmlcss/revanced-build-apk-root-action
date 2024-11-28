@@ -11,17 +11,17 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          MATRIX=$(yq eval '.apps | to_entries | map({"app": .key, "patch": .value.root_patch}) | {"include": .}' test.yaml | jq -c .)
+          MATRIX=$(yq e '.apps | to_entries | map(select(.value.enabled == true)) | map(.key as $app | .value.revanced | to_entries | map(select(.value.enabled == true)) | map({"app": $app, "patch": .key})) | flatten' test.yaml)
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
 
   build:
     needs: prepare-matrix
-    name: Build ${{ matrix.app }}
-    permissions: write-all
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         include: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    name: Build ReVanced ${{ matrix.app }}-${{ matrix.patch }}
+    permissions: write-all
+    runs-on: ubuntu-latest
     
     steps:
       - name: Setup Java
@@ -47,7 +47,7 @@ jobs:
       
       - name: Build app
         run: |
-          ./main.sh ${{ matrix.app }} ${{ matrix.patch }}
+          ./main.sh "${{ matrix.app }}" "${{ matrix.patch }}"
       
       - name: Upload APK
         uses: actions/upload-artifact@v4

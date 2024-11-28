@@ -3,13 +3,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          MATRIX=$(yq e '.apps | to_entries[] | .value.revanced | keys[] | {"app": parent.parent.key, "patch": .}' test.yaml | jq -s -c .)
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
   build:
-    name: Build APK
+    needs: prepare-matrix
+    name: Build ${{ matrix.app }}-${{ matrix.patch }}
     permissions: write-all
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     
     steps:
-      # Setup environment
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -18,8 +32,7 @@ jobs:
           
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      # Prepare tools
+
       - name: Install pup HTML parser
         run: |
           wget https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip
@@ -30,16 +43,14 @@ jobs:
           chmod +x ./main.sh
           chmod +x ./script.sh
           chmod +x ./fetch_link.sh
+          ls
       
-      - name: Download execute script
+      - name: Build app
         run: |
-          ./main.sh
+          ./main.sh ${{ matrix.app }} ${{ matrix.patch }}
       
-      
-      
-      # Upload artifact
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: revanced-extended-apk
-          path: revanced-extended.apk
+          name: revanced-${{ matrix.app }}-${{ matrix.patch }}-apk
+          path: revanced-${{ matrix.app }}-${{ matrix.patch }}.apk

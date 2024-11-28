@@ -3,25 +3,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare-matrix:
+  get-matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+    
     steps:
-      - uses: actions/checkout@v4
-      - id: set-matrix
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Install yq
         run: |
-          MATRIX=$(yq eval '.apps | to_entries | map({"app": .key, "patch": .value.root_patch}) | {"include": .}' test.yaml | jq -c .)
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          
+      - name: Generate build matrix
+        id: set-matrix
+        run: |
+          chmod +x ./fetch_app_from_file.sh
+          matrix=$(./fetch_app_from_file.sh)
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   build:
-    needs: prepare-matrix
-    name: Build ${{ matrix.app }}
-    permissions: write-all
+    needs: get-matrix
     runs-on: ubuntu-latest
+    permissions: write-all
     strategy:
-      matrix:
-        include: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+      matrix: ${{fromJson(needs.get-matrix.outputs.matrix)}}
     
     steps:
       - name: Setup Java
@@ -43,7 +51,6 @@ jobs:
           chmod +x ./main.sh
           chmod +x ./script.sh
           chmod +x ./fetch_link.sh
-          ls
       
       - name: Build app
         run: |

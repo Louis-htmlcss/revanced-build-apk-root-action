@@ -14,27 +14,21 @@ for app in $apps; do
     
     # Ne traiter que les applications activées
     if [ "$enabled" = "true" ]; then
-        # Vérifier Inotia
-        inotia_enabled=$(yq ".apps.$app.revanced.inotia.enabled" test.yaml)
-        if [ "$inotia_enabled" = "true" ]; then
-            if [ "$first_combo" = "true" ]; then
-                first_combo=false
-            else
-                json+=","
-            fi
-            json+="{\"app\":\"$app\",\"patch\":\"inotia\"}"
-        fi
+        # Récupérer tous les patchs disponibles
+        patches=$(yq ".apps.$app.revanced | keys | .[]" test.yaml)
         
-        # Vérifier ReVanced
-        revanced_enabled=$(yq ".apps.$app.revanced.revanced.enabled" test.yaml)
-        if [ "$revanced_enabled" = "true" ]; then
-            if [ "$first_combo" = "true" ]; then
-                first_combo=false
-            else
-                json+=","
+        # Parcourir chaque patch
+        for patch in $patches; do
+            patch_enabled=$(yq ".apps.$app.revanced.$patch.enabled" test.yaml)
+            if [ "$patch_enabled" = "true" ]; then
+                if [ "$first_combo" = "true" ]; then
+                    first_combo=false
+                else
+                    json+=","
+                fi
+                json+="{\"app\":\"$app\",\"patch\":\"$patch\"}"
             fi
-            json+="{\"app\":\"$app\",\"patch\":\"revanced\"}"
-        fi
+        done
     fi
 done
 

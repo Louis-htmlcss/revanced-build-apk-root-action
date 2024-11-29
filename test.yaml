@@ -20,6 +20,7 @@ apps:
     revanced:
       inotia:
         enabled: true
+        use_rvp: true
         app_version: "19-16-39"
         cli: 
           source: "revanced/revanced-cli"
@@ -32,6 +33,7 @@ apps:
           version: "latest"
       revanced:
         enabled: true
+        use_rvp: true
         app_version: "19-16-39"
         cli: 
           source: "revanced/revanced-cli"

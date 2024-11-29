@@ -62,18 +62,32 @@ INT_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.integrations.version" t
 PATCHES_SOURCE=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.source" test.yaml)
 PATCHES_VERSION=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.patches.version" test.yaml)
 
-../script.sh "$INT_SOURCE" "apk" ".apk"
-check_error "Failed to download revanced-integrations.apk"
+# Vérifier si on utilise le nouveau format .rvp
+USE_RVP=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.use_rvp" test.yaml)
 
-../script.sh "$PATCHES_SOURCE" "jar" ".jar"
-check_error "Failed to download revanced-patches.jar"
+if [ "$USE_RVP" = "true" ]; then
+    echo "Using new .rvp format..."
+    ../script.sh "$PATCHES_SOURCE" "rvp" ".rvp"
+    check_error "Failed to download revanced-patches.rvp"
+else
+    echo "Using legacy format (integrations.apk + patches.jar)..."
+    ../script.sh "$INT_SOURCE" "apk" ".apk"
+    check_error "Failed to download revanced-integrations.apk"
+
+    ../script.sh "$PATCHES_SOURCE" "jar" ".jar"
+    check_error "Failed to download revanced-patches.jar"
+fi
 
 ../script.sh "$CLI_SOURCE" "jar" ".jar"
 check_error "Failed to download revanced-cli-all.jar"
 
 # Génération des options de patch
 echo "Generating patch options..."
-java -jar revanced-cli-all.jar options --path options.json --overwrite revanced-patches.jar
+if [ "$USE_RVP" = "true" ]; then
+    java -jar revanced-cli-all.jar options --path options.json --overwrite revanced-patches.rvp
+else
+    java -jar revanced-cli-all.jar options --path options.json --overwrite revanced-patches.jar
+fi
 check_error "Failed to generate patch options"
 
 # Construction de ReVanced
@@ -100,13 +114,21 @@ if [ ! -z "$ROOT_PATCH" ]; then
 fi
 
 ls
-eval "java -jar revanced-cli-all.jar patch \
-    -b revanced-patches.jar \
-    -m revanced-integrations.apk \
-    --options options.json \
-    $PATCH_ARGS \
-    -o \"$OUTPUT_APK\" \
-    \"$APP_NAME-$APP_VERSION.apk\""
+
+if [ "$USE_RVP" = "true" ]; then
+    eval "java -jar revanced-cli-all.jar patch \
+        -p revanced-patches.rvp \
+        $PATCH_ARGS \
+        -o \"$OUTPUT_APK\" \
+        \"$APP_NAME-$APP_VERSION.apk\""
+else
+    eval "java -jar revanced-cli-all.jar patch \
+        -b revanced-patches.jar \
+        -m revanced-integrations.apk \
+        $PATCH_ARGS \
+        -o \"$OUTPUT_APK\" \
+        \"$APP_NAME-$APP_VERSION.apk\""
+fi
 check_error "Failed to build ReVanced for $APP_NAME with $PATCH_NAME patches"
 
 # Déplacer l'APK vers le répertoire parent

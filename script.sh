@@ -22,10 +22,14 @@ fetchToolsAPI() {
         return 1
     fi
 
+    # Extraire le nom du fichier de l'URL
+    FILENAME=$(basename "$ASSET_URL")
+
     echo "Téléchargement de $name_dl..."
     curl -L -o "$name_dl" "$ASSET_URL"
 
     echo "Téléchargement terminé"
+    echo "$FILENAME"  # Retourne le nom du fichier
 }
 
 # Example usage

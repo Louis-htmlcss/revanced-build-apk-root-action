@@ -67,18 +67,18 @@ USE_RVP=$(yq e ".apps.$APP_NAME.revanced.$PATCH_NAME.use_rvp" test.yaml)
 
 if [ "$USE_RVP" = "true" ]; then
     echo "Using new .rvp format..."
-    ../script.sh "$PATCHES_SOURCE" "rvp" ".rvp"
+    PATCHES_FILE=$(../script.sh "$PATCHES_SOURCE" "rvp" "revanced-patches.rvp")
     check_error "Failed to download revanced-patches.rvp"
 else
     echo "Using legacy format (integrations.apk + patches.jar)..."
-    ../script.sh "$INT_SOURCE" "apk" ".apk"
+    INTEGRATIONS_FILE=$(../script.sh "$INT_SOURCE" "apk" "revanced-integrations.apk")
     check_error "Failed to download revanced-integrations.apk"
 
-    ../script.sh "$PATCHES_SOURCE" "jar" ".jar"
+    PATCHES_FILE=$(../script.sh "$PATCHES_SOURCE" "jar" "revanced-patches.jar")
     check_error "Failed to download revanced-patches.jar"
 fi
 
-../script.sh "$CLI_SOURCE" "jar" ".jar"
+CLI_FILE=$(../script.sh "$CLI_SOURCE" "jar" "revanced-cli-all.jar")
 check_error "Failed to download revanced-cli-all.jar"
 
 # Génération des options de patch
@@ -116,15 +116,15 @@ fi
 ls
 
 if [ "$USE_RVP" = "true" ]; then
-    eval "java -jar revanced-cli-all.jar patch \
-        -p revanced-patches.rvp \
+    eval "java -jar $CLI_FILE patch \
+        -p $PATCHES_FILE \
         $PATCH_ARGS \
         -o \"$OUTPUT_APK\" \
         \"$APP_NAME-$APP_VERSION.apk\""
 else
-    eval "java -jar revanced-cli-all.jar patch \
-        -b revanced-patches.jar \
-        -m revanced-integrations.apk \
+    eval "java -jar $CLI_FILE patch \
+        -b $PATCHES_FILE \
+        -m $INTEGRATIONS_FILE \
         $PATCH_ARGS \
         -o \"$OUTPUT_APK\" \
         \"$APP_NAME-$APP_VERSION.apk\""
